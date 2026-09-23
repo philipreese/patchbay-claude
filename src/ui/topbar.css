@@ -5,7 +5,7 @@
 .tb-right { flex: 1 1 0; justify-content: flex-end; }
 .tb-brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 19px; letter-spacing: -0.02em; font-variation-settings: 'wdth' 90; user-select: none; }
 .tb-brand svg { width: 26px; height: 26px; }
-.tb-preset { display: flex; align-items: center; gap: 8px; min-width: 0; max-width: 300px; height: 40px; padding: 0 10px 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--ink-3); cursor: pointer; text-align: left; transition: background .15s, border-color .15s; }
+.tb-preset { min-width: 0; overflow: hidden; display: flex; align-items: center; gap: 8px; min-width: 0; max-width: 300px; height: 40px; padding: 0 10px 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--ink-3); cursor: pointer; text-align: left; transition: background .15s, border-color .15s; }
 .tb-preset:hover { border-color: rgba(243,238,227,.25); }
 .tb-preset svg { width: 18px; height: 18px; flex: none; opacity: .7; }
 .tb-preset-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.1; }

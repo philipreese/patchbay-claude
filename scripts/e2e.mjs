@@ -274,8 +274,16 @@ try {
     await page.screenshot({ path: `${SHOTS}/10-phone-overlay.png` });
     await page.tap('.ov-go');
     await page.waitForTimeout(1200);
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
-    check('phone: no horizontal page overflow', !overflow);
+    // #app is position:fixed with overflow hidden, so document scroll width can't reveal
+    // clipping; check the app box and that every top-bar control is fully on screen.
+    const fit = await page.evaluate(() => {
+      const W = window.innerWidth;
+      const app = document.getElementById('app');
+      const offscreen = [...document.querySelectorAll('#topbar button, .dock-tab-bar button, .canvas-overlay-add')]
+        .filter((b) => b.offsetParent && b.getBoundingClientRect().right > W + 1).map((b) => b.getAttribute('aria-label') || b.textContent.trim());
+      return { W, app: app.scrollWidth, offscreen };
+    });
+    check('phone: app fits the screen width, no clipped controls', fit.app <= fit.W + 1 && fit.offscreen.length === 0, JSON.stringify(fit));
     await page.screenshot({ path: `${SHOTS}/11-phone-playing.png` });
     const ph = await level(page, 1000);
     check('phone: sound plays after tap', ph.rms > 0.005, `rms ${ph.rms.toFixed(4)}`);
