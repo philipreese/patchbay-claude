@@ -155,7 +155,15 @@ class OscRuntime extends Base {
     for (const voice of this.v) {
       for (const o of voice.oscs) {
         o.stop(t + 0.02);
-        setTimeout(() => safeDisconnect(o), 80);
+        setTimeout(() => {
+          safeDisconnect(o);
+          try {
+            voice.pitchIn.disconnect(o.detune);
+            voice.fmIn.disconnect(o.frequency);
+          } catch {
+            /* already gone */
+          }
+        }, 80);
       }
       voice.oscs = [];
       const det = this.detunes(n);
@@ -616,7 +624,14 @@ class DelayRuntime extends Base {
   /** (Re)create the delay lines — also used to flush echoes on panic. */
   buildChain() {
     const ctx = this.ctx;
-    if (this.chain) for (const n of Object.values(this.chain)) safeDisconnect(n);
+    if (this.chain) {
+      try {
+        this.in.disconnect(this.chain.hp);
+      } catch {
+        /* */
+      }
+      for (const n of Object.values(this.chain)) safeDisconnect(n);
+    }
     const dl = ctx.createDelay(2);
     const dr = ctx.createDelay(2);
     const tl = ctx.createBiquadFilter();
@@ -750,12 +765,22 @@ class ReverbRuntime extends Base {
     const oldConv = this.conv;
     const oldGain = this.convGain;
     if (oldConv && oldGain) {
+      // Detach the old convolver's input too, or it keeps convolving (and costing CPU).
+      const detach = () => {
+        try {
+          this.in.disconnect(oldConv);
+        } catch {
+          /* */
+        }
+      };
       if (immediate) {
+        detach();
         safeDisconnect(oldConv);
         safeDisconnect(oldGain);
       } else {
         oldGain.gain.setTargetAtTime(0, t, 0.08);
         setTimeout(() => {
+          detach();
           safeDisconnect(oldConv);
           safeDisconnect(oldGain);
         }, 700);
