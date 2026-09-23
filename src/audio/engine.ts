@@ -27,7 +27,7 @@ export class Engine implements EngineView {
   ctx: AudioContext | null = null;
   started = false;
   playing = false;
-  masterVolume = 0.6;
+  masterVolume = 0.72;
   recording = false;
   heldNotes: number[] = [];
 
@@ -523,6 +523,10 @@ export class Engine implements EngineView {
 
   setBend(semitones: number) {
     for (const k of this.keys()) k.setBend(semitones);
+  }
+
+  emitMidi(status: 'unsupported' | 'denied' | 'ready', inputs: string[]) {
+    this.emit({ type: 'midi', status, inputs });
   }
 
   hasKeys(): boolean {
