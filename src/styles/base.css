@@ -17,3 +17,6 @@ button { font: inherit; color: inherit; }
 .toast.in { opacity: 1; transform: none; }
 .toast-warn { background: var(--hot); color: #fff; }
 .toast-ok { background: var(--ok); color: #fff; }
+@media (max-width: 820px) {
+  .toast-host { bottom: auto; top: calc(var(--topbar-h) + 10px); }
+}
