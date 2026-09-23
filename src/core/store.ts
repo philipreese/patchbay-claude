@@ -176,7 +176,7 @@ export class PatchStore {
       id: this.newId('c'),
       from: { ...from },
       to: { ...to },
-      color: color ?? this.patch.cables.length % CABLE_COLORS,
+      color: color ?? cableColorFor(this.patch, from),
     };
     this.patch.cables.push(cable);
     this.emit({ type: 'cable-add', cable });
@@ -231,6 +231,16 @@ export function macroPosition(patch: Patch, mac: Macro): number {
     const cur = paramToNorm(def, m.params[t.param] as number);
     return Math.min(1, Math.max(0, (cur - a) / (b - a)));
   }
+  return 0;
+}
+
+/** Default cable colour by signal: audio vermilion, pitch saffron, modulation jade, gates magenta. */
+export function cableColorFor(patch: Patch, from: PortRef): number {
+  const m = patch.modules.find((x) => x.id === from.module);
+  const port = m && getModuleDef(m.type)?.outputs.find((p) => p.id === from.port);
+  if (!port) return 0;
+  if (port.kind === 'gate') return 4;
+  if (port.kind === 'cv') return port.id === 'pitch' ? 1 : m!.type === 'env' ? 5 : 3;
   return 0;
 }
 
