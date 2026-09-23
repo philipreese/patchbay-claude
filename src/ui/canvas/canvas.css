@@ -391,3 +391,8 @@
   .canvas-overlay { left: 8px; right: 8px; bottom: 8px; justify-content: space-between; }
   .canvas-overlay-add { padding: 8px 10px; }
 }
+@media (max-width: 820px) {
+  /* Short phone canvas: keep the overlay compact so it covers less of the patch. */
+  .canvas-overlay-btn { min-width: 36px; height: 36px; }
+  .canvas-overlay-add { font-size: 13px; }
+}

@@ -8,7 +8,7 @@ import type { Ctx, JackInfo, ViewState } from './types';
 import { jackKey } from './types';
 import './canvas.css';
 
-const MIN_ZOOM = 0.25;
+const MIN_ZOOM = 0.15;
 const MAX_ZOOM = 1.6;
 const GRID_SIZE = 26;
 
@@ -82,6 +82,17 @@ class CanvasController implements Ctx {
     }
 
     requestAnimationFrame(this.tick);
+
+    // Keep the automatic framing when the canvas changes size (phone dock settling,
+    // rotation, window resize) unless the user has panned or zoomed since.
+    let lastW = 0, lastH = 0;
+    new ResizeObserver(() => {
+      const r = root.getBoundingClientRect();
+      if (Math.abs(r.width - lastW) < 2 && Math.abs(r.height - lastH) < 2) return;
+      lastW = r.width;
+      lastH = r.height;
+      if (this.autoFit) this.fitView();
+    }).observe(root);
   }
 
   // ---- Ctx implementation --------------------------------------------------
@@ -258,13 +269,27 @@ class CanvasController implements Ctx {
 
   // ---- view: pan / zoom / fit -----------------------------------------------
 
+  /** True while the view is the automatic "fit" framing; any user pan/zoom clears it. */
+  private autoFit = false;
+  private fitting = false;
+
   applyTransform() {
+    this.autoFit = this.fitting;
     this.world.style.transform = `translate(${this.view.x}px, ${this.view.y}px) scale(${this.view.zoom})`;
     this.gridEl.style.backgroundPosition = `${this.view.x}px ${this.view.y}px`;
     this.gridEl.style.backgroundSize = `${GRID_SIZE * this.view.zoom}px ${GRID_SIZE * this.view.zoom}px`;
   }
 
   fitView() {
+    this.fitting = true;
+    try {
+      this.fitViewInner();
+    } finally {
+      this.fitting = false;
+    }
+  }
+
+  private fitViewInner() {
     const entries = [...this.modules.entries()];
     if (!entries.length) {
       const rect = this.root.getBoundingClientRect();

@@ -356,7 +356,10 @@ export function mountTopbar(root: HTMLElement, deps: TopbarDeps) {
   }
   shareBtn.onclick = () => openShare(shareBtn);
 
-  const midiLine = h('div', { class: 'pm-note' }, 'MIDI: not connected');
+  const midiLine = h('div', { class: 'pm-note' }, 'MIDI: starts when you turn on the sound');
+  engine.on((ev) => {
+    if (ev.type === 'started' && /starts when/.test(midiLine.textContent || '')) midiLine.textContent = 'MIDI: waiting for the browser (permission prompt or no MIDI support)…';
+  });
   engine.on((ev) => {
     if (ev.type === 'midi') midiLine.textContent = ev.status === 'ready' ? `MIDI: ${ev.inputs.length ? ev.inputs.join(', ') : 'ready — no devices'}` : ev.status === 'denied' ? 'MIDI: permission denied' : 'MIDI: not supported in this browser';
   });

@@ -5,7 +5,7 @@ A modular synthesizer that runs in your browser and that you can play right away
 ## Play it
 
 1. Press **Start**. The bass line begins at a gentle volume.
-2. Turn the four big **Sound** knobs on the right. Each one moves several real module knobs at once.
+2. Turn the four big **Sound** knobs on the right. Each one moves one or more real module knobs, and you can watch them turn on the canvas.
 3. Play notes with the on-screen keys, your computer keyboard or a MIDI keyboard. On the bass and the ambient patch, a key press transposes the running sequence.
 4. Pick another instrument from the menu at the top left:
    - **Night Drive Bass**: a rhythmic sequenced bass line.

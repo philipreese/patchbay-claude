@@ -112,7 +112,19 @@ try {
       an.getFloatTimeDomainData(buf);
       return { isMaster: an === engine.getMasterAnalyser(), peak: Math.max(...buf.map(Math.abs)) };
     });
-    check('probe analyser switches to the selected port', !probe.isMaster, JSON.stringify(probe));
+    // The probed signal must differ from master: probe the pitch CV (a slow DC-ish signal).
+    const probe2 = await page.evaluate(async () => {
+      const { store, engine } = window.__patchbay;
+      store.setProbe({ module: 'seq1', port: 'pitch' });
+      await new Promise((r) => setTimeout(r, 200));
+      const buf = new Float32Array(2048);
+      engine.getProbeAnalyser().getFloatTimeDomainData(buf);
+      const mean = buf.reduce((a, b) => a + b, 0) / buf.length;
+      const label = document.querySelector('#dock')?.textContent || '';
+      store.setProbe({ module: 'flt1', port: 'out' });
+      return { mean, labelled: /Bass line|Sequencer/.test(label) && /Pitch/.test(label) };
+    });
+    check('probe analyser switches to the selected port', !probe.isMaster && probe.peak > 0.01 && Math.abs(probe2.mean) > 0.3 && probe2.labelled, JSON.stringify({ ...probe, ...probe2 }));
 
     // change a connection during playback: pull the cable into Output, sound should stop
     const cut = await page.evaluate(async () => {
@@ -121,6 +133,8 @@ try {
       store.removeCable(c.id);
       return c;
     });
+    // The analyser holds the last ~46 ms of pre-unplug audio; let it clear first.
+    await page.waitForTimeout(150);
     const silent = await level(page, 700);
     await page.evaluate((c) => window.__patchbay.store.connect(c.from, c.to), cut);
     const back = await level(page, 900);
@@ -128,7 +142,7 @@ try {
 
     // unsupported connection is refused gracefully
     const bad = await page.evaluate(() => window.__patchbay.store.connect({ module: 'seq1', port: 'gate' }, { module: 'flt1', port: 'in' }));
-    check('unsupported connection refused with a reason', bad.ok === false && bad.reason.length > 10, bad.reason);
+    check('unsupported connection refused with a reason', bad.ok === false && /gate|note events/i.test(bad.reason), bad.reason);
 
     // pad chords
     await page.evaluate(() => window.__patchbay.loadPatch(window.__patchbay.presets[1].make()));

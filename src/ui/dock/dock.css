@@ -196,9 +196,9 @@
 .play-tab-panel .pb-keyboard-root { flex: 1; min-height: 0; }
 
 @media (max-width: 820px) {
-  #dock { max-height: 55vh; }
+  #dock { max-height: min(55vh, 390px); }
   #playbar { display: none; }
-  .pb-keys { height: 132px; }
+  .pb-keys { height: 124px; }
   .rhythm-cell { width: 46px; height: 56px; }
   .rhythm-col { width: 46px; }
 
