@@ -121,3 +121,5 @@
 }
 .chip:hover { color: var(--print); }
 .chip.active { background: var(--print); color: var(--enamel); border-color: var(--print); }
+/* Larger invisible grab area than the drawn knob (easier on touch and when zoomed out). */
+.knob::after { content: ''; position: absolute; inset: -6px -5px; border-radius: 50%; }
