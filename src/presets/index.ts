@@ -40,16 +40,16 @@ export function bassPatch(): Patch {
   const modules = [
     seq('seq1', 40, 40, { rate: '1/16', length: 16, gate: 0.45, root: 36, scale: 'minor', swing: 0.12 },
       steps('x.xxx.xx.xxx.xxx', [0, 0, 12, 0, 0, 3, 0, 0, 0, 7, 12, 10, 0, 3, 5, 7], 'x...x...x...x...', '..x.......x.....'), 'Bass line'),
-    mod('keys1', 'keys', 40, 330, { voices: 1 }, 'Keys → transpose'),
-    mod('osc1', 'osc', 540, 40, { wave: 'sawtooth', octave: 0, unison: 2, spread: 9 }),
-    mod('osc2', 'osc', 540, 300, { wave: 'square', octave: -1, fine: -4 }, 'Sub'),
-    mod('mix1', 'mixer', 820, 40, { level1: 0.8, level2: 0.55, level3: 0, level4: 0 }),
-    mod('env1', 'env', 540, 560, { attack: 0.002, decay: 0.22, sustain: 0.05, release: 0.12, amount: 0.62, velocity: 0.6 }, 'Filter env'),
-    mod('flt1', 'filter', 1100, 40, { mode: 'lowpass', cutoff: 180, res: 9, drive: 0.45 }),
-    mod('env2', 'env', 830, 330, { attack: 0.002, decay: 0.3, sustain: 0.55, release: 0.09, amount: 1, velocity: 0.4 }, 'Amp env'),
+    mod('keys1', 'keys', 40, 490, { voices: 1 }, 'Keys → transpose'),
+    mod('osc1', 'osc', 520, 40, { wave: 'sawtooth', octave: 0, unison: 2, spread: 9 }),
+    mod('osc2', 'osc', 520, 355, { wave: 'square', octave: -1, fine: -4 }, 'Sub'),
+    mod('mix1', 'mixer', 780, 40, { level1: 0.8, level2: 0.55, level3: 0, level4: 0 }),
+    mod('env1', 'env', 780, 356, { attack: 0.002, decay: 0.22, sustain: 0.05, release: 0.12, amount: 0.62, velocity: 0.6 }, 'Filter env'),
+    mod('flt1', 'filter', 1080, 40, { mode: 'lowpass', cutoff: 180, res: 9, drive: 0.45 }),
+    mod('env2', 'env', 1080, 318, { attack: 0.002, decay: 0.3, sustain: 0.55, release: 0.09, amount: 1, velocity: 0.4 }, 'Amp env'),
     mod('vca1', 'vca', 1380, 40, { gain: 0 }),
-    mod('dly1', 'delay', 1380, 260, { sync: '1/8.', feedback: 0.32, tone: 2200, mix: 0.18 }),
-    mod('out', 'output', 1680, 120, { level: 0.8 }),
+    mod('dly1', 'delay', 1380, 256, { sync: '1/8.', feedback: 0.32, tone: 2200, mix: 0.18 }),
+    mod('out', 'output', 1660, 40, { level: 0.8 }),
   ];
   const cables = [
     c('seq1.pitch', 'osc1.pitch', PITCH),
@@ -75,25 +75,25 @@ export function bassPatch(): Patch {
   return {
     format: 'patchbay', version: 1, name: 'Night Drive Bass',
     about: 'Press play. Turn Brightness and Squelch. Hold a key to transpose the line.',
-    tempo: 118, modules, cables, macros, view: { x: 20, y: 30, zoom: 0.62 },
+    tempo: 118, modules, cables, macros,
   };
 }
 
 export function padPatch(): Patch {
   cableN = 0;
   const modules = [
-    mod('keys1', 'keys', 40, 60, { voices: 6, glide: 0 }),
-    mod('osc1', 'osc', 320, 40, { wave: 'sawtooth', octave: 0, unison: 3, spread: 16 }),
-    mod('osc2', 'osc', 320, 310, { wave: 'triangle', octave: 1, fine: 6 }, 'Air'),
-    mod('mix1', 'mixer', 610, 40, { level1: 0.55, level2: 0.35, level3: 0, level4: 0 }),
-    mod('flt1', 'filter', 890, 40, { mode: 'lowpass', cutoff: 1100, res: 1.6 }),
-    mod('env1', 'env', 610, 310, { attack: 1.1, decay: 1.6, sustain: 0.8, release: 2.6, amount: 1, velocity: 0.3 }, 'Swell'),
-    mod('env2', 'env', 40, 330, { attack: 1.6, decay: 2.5, sustain: 0.3, release: 3, amount: 0.35, velocity: 0.2 }, 'Filter bloom'),
-    mod('lfo1', 'lfo', 890, 310, { wave: 'sine', rate: 0.13, depth: 0.18 }, 'Drift'),
-    mod('vca1', 'vca', 1170, 40, { gain: 0 }),
-    mod('rev1', 'reverb', 1170, 250, { size: 6.5, tone: 5200, mix: 0.45 }),
-    mod('dly1', 'delay', 1420, 40, { sync: '1/4.', feedback: 0.35, tone: 2600, mix: 0.18 }),
-    mod('out', 'output', 1450, 330, { level: 0.8 }),
+    mod('keys1', 'keys', 40, 40, { voices: 6, glide: 0 }),
+    mod('osc1', 'osc', 340, 40, { wave: 'sawtooth', octave: 0, unison: 3, spread: 16 }),
+    mod('osc2', 'osc', 340, 355, { wave: 'triangle', octave: 1, fine: 6 }, 'Air'),
+    mod('mix1', 'mixer', 600, 40, { level1: 0.55, level2: 0.35, level3: 0, level4: 0 }),
+    mod('flt1', 'filter', 900, 40, { mode: 'lowpass', cutoff: 1100, res: 1.6 }),
+    mod('env1', 'env', 600, 356, { attack: 1.1, decay: 1.6, sustain: 0.8, release: 2.6, amount: 1, velocity: 0.3 }, 'Swell'),
+    mod('env2', 'env', 40, 277, { attack: 1.6, decay: 2.5, sustain: 0.3, release: 3, amount: 0.35, velocity: 0.2 }, 'Filter bloom'),
+    mod('lfo1', 'lfo', 900, 318, { wave: 'sine', rate: 0.13, depth: 0.18 }, 'Drift'),
+    mod('vca1', 'vca', 1160, 40, { gain: 0 }),
+    mod('rev1', 'reverb', 1160, 256, { size: 6.5, tone: 5200, mix: 0.45 }),
+    mod('dly1', 'delay', 1400, 40, { sync: '1/4.', feedback: 0.35, tone: 2600, mix: 0.18 }),
+    mod('out', 'output', 1400, 358, { level: 0.8 }),
   ];
   const cables = [
     c('keys1.pitch', 'osc1.pitch', PITCH),
@@ -120,25 +120,25 @@ export function padPatch(): Patch {
   return {
     format: 'patchbay', version: 1, name: 'Glass Cathedral Pad',
     about: 'Hold chords — tap the chord pads or press several keys at once.',
-    tempo: 90, modules, cables, macros, chords: true, view: { x: 20, y: 30, zoom: 0.62 },
+    tempo: 90, modules, cables, macros, chords: true,
   };
 }
 
 export function leadPatch(): Patch {
   cableN = 0;
   const modules = [
-    mod('keys1', 'keys', 40, 60, { voices: 1, glide: 0.09 }),
-    mod('osc1', 'osc', 320, 40, { wave: 'sawtooth', unison: 2, spread: 7 }),
-    mod('osc2', 'osc', 320, 310, { wave: 'square', tune: 12, fine: 5 }, 'Octave up'),
-    mod('lfo1', 'lfo', 40, 330, { wave: 'sine', rate: 5.4, depth: 0.012 }, 'Vibrato'),
-    mod('mix1', 'mixer', 610, 40, { level1: 0.7, level2: 0.3, level3: 0, level4: 0 }),
-    mod('flt1', 'filter', 890, 40, { mode: 'lowpass', cutoff: 900, res: 5, drive: 0.35 }),
-    mod('env1', 'env', 610, 310, { attack: 0.004, decay: 0.45, sustain: 0.35, release: 0.35, amount: 0.5, velocity: 0.7 }, 'Filter env'),
-    mod('env2', 'env', 890, 330, { attack: 0.012, decay: 0.3, sustain: 0.85, release: 0.4, amount: 1, velocity: 0.5 }, 'Amp env'),
-    mod('vca1', 'vca', 1170, 40, { gain: 0 }),
-    mod('dly1', 'delay', 1170, 250, { sync: '1/8.', feedback: 0.42, tone: 3200, mix: 0.26 }),
-    mod('rev1', 'reverb', 1440, 40, { size: 2.6, mix: 0.22 }),
-    mod('out', 'output', 1470, 290, { level: 0.8 }),
+    mod('keys1', 'keys', 40, 40, { voices: 1, glide: 0.09 }),
+    mod('osc1', 'osc', 280, 40, { wave: 'sawtooth', unison: 2, spread: 7 }),
+    mod('osc2', 'osc', 280, 355, { wave: 'square', tune: 12, fine: 5 }, 'Octave up'),
+    mod('lfo1', 'lfo', 40, 277, { wave: 'sine', rate: 5.4, depth: 0.012 }, 'Vibrato'),
+    mod('mix1', 'mixer', 540, 40, { level1: 0.7, level2: 0.3, level3: 0, level4: 0 }),
+    mod('flt1', 'filter', 840, 40, { mode: 'lowpass', cutoff: 900, res: 5, drive: 0.35 }),
+    mod('env1', 'env', 540, 356, { attack: 0.004, decay: 0.45, sustain: 0.35, release: 0.35, amount: 0.5, velocity: 0.7 }, 'Filter env'),
+    mod('env2', 'env', 840, 318, { attack: 0.012, decay: 0.3, sustain: 0.85, release: 0.4, amount: 1, velocity: 0.5 }, 'Amp env'),
+    mod('vca1', 'vca', 1140, 40, { gain: 0 }),
+    mod('dly1', 'delay', 1140, 256, { sync: '1/8.', feedback: 0.42, tone: 3200, mix: 0.26 }),
+    mod('rev1', 'reverb', 1420, 40, { size: 2.6, mix: 0.22 }),
+    mod('out', 'output', 1420, 235, { level: 0.8 }),
   ];
   const cables = [
     c('keys1.pitch', 'osc1.pitch', PITCH),
@@ -168,7 +168,7 @@ export function leadPatch(): Patch {
   return {
     format: 'patchbay', version: 1, name: 'Solar Lead',
     about: 'One note at a time. Hold one key and tap another to glide. Drag up on the expression strip.',
-    tempo: 110, modules, cables, macros, view: { x: 20, y: 30, zoom: 0.62 },
+    tempo: 110, modules, cables, macros,
   };
 }
 
@@ -177,24 +177,24 @@ export function ambientPatch(): Patch {
   const modules = [
     seq('seq1', 40, 40, { rate: '1/8', length: 13, gate: 0.35, root: 60, scale: 'pentatonic', chance: 0.5, wander: 0.35 },
       steps('x.x.xx.x..x.x...', [0, 0, 7, 0, 9, 12, 0, 4, 0, 0, 14, 0, 7, 0, 0, 0]), 'Bells'),
-    seq('seq2', 40, 330, { rate: '1/4', length: 7, gate: 0.9, root: 36, scale: 'pentatonic', chance: 0.8, wander: 0.2 },
+    seq('seq2', 40, 490, { rate: '1/4', length: 7, gate: 0.9, root: 36, scale: 'pentatonic', chance: 0.8, wander: 0.2 },
       steps('x..x.x.', [0, 0, 0, 7, 0, -3, 0]), 'Low drone'),
-    mod('keys1', 'keys', 40, 620, { voices: 1 }, 'Keys → transpose'),
-    mod('osc1', 'osc', 540, 40, { wave: 'sine', octave: 0 }, 'Bell'),
-    mod('osc3', 'osc', 540, 300, { wave: 'sine', octave: 1, tune: 7, fm: 0 }, 'Bell partial'),
-    mod('env1', 'env', 820, 300, { attack: 0.004, decay: 2.2, sustain: 0, release: 2.5, amount: 1, velocity: 0.5 }, 'Bell env'),
-    mod('vca1', 'vca', 820, 40, { gain: 0 }),
-    mod('osc2', 'osc', 540, 560, { wave: 'triangle', octave: 1, unison: 2, spread: 10 }, 'Drone'),
-    mod('flt2', 'filter', 820, 560, { mode: 'lowpass', cutoff: 520, res: 2 }),
-    mod('env2', 'env', 1100, 560, { attack: 2.2, decay: 2, sustain: 0.7, release: 4, amount: 0.8, velocity: 0.2 }, 'Drone swell'),
-    mod('vca2', 'vca', 1100, 380, { gain: 0 }),
-    mod('noise1', 'noise', 1100, 820, { color: 'brown' }, 'Wind'),
-    mod('lfo1', 'lfo', 820, 820, { wave: 'sine', rate: 0.07, depth: 0.4 }, 'Gust'),
-    mod('flt3', 'filter', 1380, 780, { mode: 'bandpass', cutoff: 700, res: 4 }),
-    mod('mix1', 'mixer', 1380, 40, { level1: 0.55, level2: 0.5, level3: 0.18, level4: 0 }),
-    mod('dly1', 'delay', 1660, 40, { sync: '1/4.', feedback: 0.58, tone: 2400, mix: 0.38 }),
-    mod('rev1', 'reverb', 1660, 300, { size: 9, tone: 4200, mix: 0.6 }),
-    mod('out', 'output', 1940, 170, { level: 0.8 }),
+    mod('keys1', 'keys', 780, 787, { voices: 1 }, 'Keys → transpose'),
+    mod('osc1', 'osc', 520, 355, { wave: 'sine', octave: 0 }, 'Bell'),
+    mod('osc3', 'osc', 520, 40, { wave: 'sine', octave: 1, tune: 7, fm: 0 }, 'Bell partial'),
+    mod('env1', 'env', 780, 40, { attack: 0.004, decay: 2.2, sustain: 0, release: 2.5, amount: 1, velocity: 0.5 }, 'Bell env'),
+    mod('vca1', 'vca', 780, 293, { gain: 0 }),
+    mod('osc2', 'osc', 520, 670, { wave: 'triangle', octave: 1, unison: 2, spread: 10 }, 'Drone'),
+    mod('flt2', 'filter', 780, 509, { mode: 'lowpass', cutoff: 520, res: 2 }),
+    mod('env2', 'env', 1080, 40, { attack: 2.2, decay: 2, sustain: 0.7, release: 4, amount: 0.8, velocity: 0.2 }, 'Drone swell'),
+    mod('vca2', 'vca', 1080, 293, { gain: 0 }),
+    mod('noise1', 'noise', 1380, 40, { color: 'brown' }, 'Wind'),
+    mod('lfo1', 'lfo', 1080, 509, { wave: 'sine', rate: 0.07, depth: 0.4 }, 'Gust'),
+    mod('flt3', 'filter', 1380, 242, { mode: 'bandpass', cutoff: 700, res: 4 }),
+    mod('mix1', 'mixer', 1380, 520, { level1: 0.55, level2: 0.5, level3: 0.18, level4: 0 }),
+    mod('dly1', 'delay', 1640, 40, { sync: '1/4.', feedback: 0.58, tone: 2400, mix: 0.38 }),
+    mod('rev1', 'reverb', 1640, 358, { size: 9, tone: 4200, mix: 0.6 }),
+    mod('out', 'output', 1640, 553, { level: 0.8 }),
   ];
   const cables = [
     c('seq1.pitch', 'osc1.pitch', PITCH),
@@ -229,7 +229,7 @@ export function ambientPatch(): Patch {
   return {
     format: 'patchbay', version: 1, name: 'Tidepool (generative)',
     about: 'It plays itself. Nudge Density and Drift; press a key to move it to a new key.',
-    tempo: 84, modules, cables, macros, view: { x: 20, y: 30, zoom: 0.5 },
+    tempo: 84, modules, cables, macros,
   };
 }
 

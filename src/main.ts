@@ -8,6 +8,7 @@ import { loadSession, saveSession } from './core/library';
 import { parsePatch } from './core/serialize';
 import { mountTopbar } from './ui/topbar';
 import { mountOverlay } from './ui/overlay';
+import { mountAmbience } from './ui/ambience';
 import { toast } from './ui/toast';
 import { attachComputerKeyboard } from './input/keyboard';
 import { attachMidi } from './input/midi';
@@ -97,6 +98,11 @@ async function boot() {
     mountCanvas(document.getElementById('canvas-root')!, store, engine);
   } catch (e) {
     console.error('canvas failed', e);
+  }
+  try {
+    mountAmbience(document.getElementById('canvas-root')!, engine);
+  } catch (e) {
+    console.error('ambience failed', e);
   }
   try {
     const { mountDock } = await import('./ui/dock');
