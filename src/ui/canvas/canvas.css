@@ -59,7 +59,7 @@
   opacity: 0.85;
   pointer-events: none;
 }
-.cable-remove-btn { cursor: pointer; }
+.cable-remove-btn { cursor: pointer; pointer-events: auto; }
 .cable-remove-btn circle { fill: var(--hot); stroke: var(--paper); stroke-width: 1.5; }
 .cable-remove-btn line { stroke: #fff; stroke-width: 1.6; stroke-linecap: round; }
 

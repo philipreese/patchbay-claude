@@ -148,6 +148,7 @@ export class CableLayer {
   select(id: string) {
     this.selectedId = id;
     for (const [cid, entry] of this.cables) entry.vis.classList.toggle('selected', cid === id);
+    if (this.ctx.store.selected) this.ctx.store.select(null);
   }
 
   clearSelection() {

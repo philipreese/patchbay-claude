@@ -244,6 +244,7 @@ class CanvasController implements Ctx {
 
   private syncSelection() {
     for (const [id, card] of this.modules) card.setSelected(id === this.store.selected);
+    if (this.store.selected) this.cableLayer.clearSelection();
   }
 
   private syncProbe() {
