@@ -40,7 +40,7 @@ export function bassPatch(): Patch {
   const modules = [
     seq('seq1', 40, 40, { rate: '1/16', length: 16, gate: 0.45, root: 36, scale: 'minor', swing: 0.12 },
       steps('x.xxx.xx.xxx.xxx', [0, 0, 12, 0, 0, 3, 0, 0, 0, 7, 12, 10, 0, 3, 5, 7], 'x...x...x...x...', '..x.......x.....'), 'Bass line'),
-    mod('keys1', 'keys', 40, 490, { voices: 1 }, 'Keys → transpose'),
+    mod('keys1', 'keys', 40, 420, { voices: 1 }, 'Keys → transpose'),
     mod('osc1', 'osc', 520, 40, { wave: 'sawtooth', octave: 0, unison: 2, spread: 9 }),
     mod('osc2', 'osc', 520, 355, { wave: 'square', octave: -1, fine: -4 }, 'Sub'),
     mod('mix1', 'mixer', 780, 40, { level1: 0.8, level2: 0.55, level3: 0, level4: 0 }),
@@ -177,7 +177,7 @@ export function ambientPatch(): Patch {
   const modules = [
     seq('seq1', 40, 40, { rate: '1/8', length: 13, gate: 0.35, root: 60, scale: 'pentatonic', chance: 0.5, wander: 0.35 },
       steps('x.x.xx.x..x.x...', [0, 0, 7, 0, 9, 12, 0, 4, 0, 0, 14, 0, 7, 0, 0, 0]), 'Bells'),
-    seq('seq2', 40, 490, { rate: '1/4', length: 7, gate: 0.9, root: 36, scale: 'pentatonic', chance: 0.8, wander: 0.2 },
+    seq('seq2', 40, 420, { rate: '1/4', length: 7, gate: 0.9, root: 36, scale: 'pentatonic', chance: 0.8, wander: 0.2 },
       steps('x..x.x.', [0, 0, 0, 7, 0, -3, 0]), 'Low drone'),
     mod('keys1', 'keys', 780, 787, { voices: 1 }, 'Keys → transpose'),
     mod('osc1', 'osc', 520, 355, { wave: 'sine', octave: 0 }, 'Bell'),
