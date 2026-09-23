@@ -299,6 +299,13 @@ try {
     });
     check('phone: app fits the screen width, no clipped controls', fit.app <= fit.W + 1 && fit.offscreen.length === 0, JSON.stringify(fit));
     await page.screenshot({ path: `${SHOTS}/11-phone-playing.png` });
+    const framed = await page.evaluate(() => {
+      const c = document.getElementById('canvas-root').getBoundingClientRect();
+      const cards = [...document.querySelectorAll('[data-module-id]')];
+      const inside = cards.filter((e) => { const r = e.getBoundingClientRect(); return r.top >= c.top - 1 && r.bottom <= c.bottom + 1 && r.left >= c.left - 1 && r.right <= c.right + 1; });
+      return { canvasH: Math.round(c.height), inside: inside.length, total: cards.length };
+    });
+    check('phone: canvas is usable and frames the whole patch', framed.canvasH > 220 && framed.inside === framed.total, JSON.stringify(framed));
     const ph = await level(page, 1000);
     check('phone: sound plays after tap', ph.rms > 0.005, `rms ${ph.rms.toFixed(4)}`);
     check('no page errors on phone', errors.length === 0, errors.slice(0, 5).join(' | '));
