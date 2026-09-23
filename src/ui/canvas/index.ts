@@ -56,12 +56,14 @@ class CanvasController implements Ctx {
     this.world.className = 'canvas-world';
     root.appendChild(this.world);
 
+    this.cableLayer = new CableLayer(this);
+    this.world.appendChild(this.cableLayer.svgHit);
+
     this.modulesLayer = document.createElement('div');
     this.modulesLayer.className = 'canvas-modules';
     this.world.appendChild(this.modulesLayer);
 
-    this.cableLayer = new CableLayer(this);
-    this.world.appendChild(this.cableLayer.svg);
+    this.world.appendChild(this.cableLayer.svgTop);
 
     this.overlay = this.buildOverlay();
     root.appendChild(this.overlay);

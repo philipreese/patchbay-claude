@@ -50,11 +50,21 @@ function bezierPoint(p1: { x: number; y: number }, p2: { x: number; y: number },
   return { x, y };
 }
 
-/** The single SVG cable layer: draws, drags, selects and animates every patch cable. */
+/**
+ * The cable layer. Split into two SVGs so cables *look* like they're drawn
+ * above every module (as required) without their generous click targets
+ * stealing pointer events from jacks that happen to sit under a cable's path:
+ *  - `svgHit` sits BELOW the modules layer: interactive hit-paths for
+ *    selecting a cable (clickable only where a cable crosses open canvas).
+ *  - `svgTop` sits ABOVE the modules layer: the visible strokes, the drag
+ *    preview and the remove button (all painted last, on top).
+ */
 export class CableLayer {
-  readonly svg: SVGSVGElement;
+  readonly svgHit: SVGSVGElement;
+  readonly svgTop: SVGSVGElement;
   private ctx: Ctx;
-  private g: SVGGElement;
+  private gHit: SVGGElement;
+  private gVis: SVGGElement;
   private previewPath: SVGPathElement;
   private cables = new Map<string, CableEntry>();
   private selectedId: string | null = null;
@@ -64,20 +74,27 @@ export class CableLayer {
 
   constructor(ctx: Ctx) {
     this.ctx = ctx;
-    const svg = document.createElementNS(SVG_NS, 'svg');
-    svg.setAttribute('class', 'cable-svg');
-    svg.setAttribute('width', '1');
-    svg.setAttribute('height', '1');
-    svg.style.overflow = 'visible';
-    this.svg = svg;
 
-    this.g = document.createElementNS(SVG_NS, 'g');
-    svg.appendChild(this.g);
+    const makeSvg = (cls: string) => {
+      const svg = document.createElementNS(SVG_NS, 'svg');
+      svg.setAttribute('class', cls);
+      svg.setAttribute('width', '1');
+      svg.setAttribute('height', '1');
+      svg.style.overflow = 'visible';
+      return svg;
+    };
+    this.svgHit = makeSvg('cable-svg cable-svg-hit');
+    this.svgTop = makeSvg('cable-svg cable-svg-top');
+
+    this.gHit = document.createElementNS(SVG_NS, 'g');
+    this.svgHit.appendChild(this.gHit);
+    this.gVis = document.createElementNS(SVG_NS, 'g');
+    this.svgTop.appendChild(this.gVis);
 
     this.previewPath = document.createElementNS(SVG_NS, 'path') as SVGPathElement;
     this.previewPath.setAttribute('class', 'cable-preview');
     this.previewPath.style.display = 'none';
-    svg.appendChild(this.previewPath);
+    this.svgTop.appendChild(this.previewPath);
 
     this.removeBtn = document.createElementNS(SVG_NS, 'g') as SVGGElement;
     this.removeBtn.setAttribute('class', 'cable-remove-btn');
@@ -96,7 +113,7 @@ export class CableLayer {
       e.stopPropagation();
       if (this.selectedId) this.ctx.store.removeCable(this.selectedId);
     });
-    svg.appendChild(this.removeBtn);
+    this.svgTop.appendChild(this.removeBtn);
 
     ctx.engine.on((ev) => {
       if (ev.type === 'gate') this.gateFlash.set(`${ev.module}:${ev.port}`, performance.now());
@@ -128,8 +145,8 @@ export class CableLayer {
       e.stopPropagation();
       this.select(cable.id);
     });
-    this.g.appendChild(vis);
-    this.g.appendChild(hit);
+    this.gVis.appendChild(vis);
+    this.gHit.appendChild(hit);
     this.cables.set(cable.id, { cable, hit, vis, kind, addedAt: performance.now() });
   }
 
@@ -189,7 +206,11 @@ export class CableLayer {
       pointerId: e.pointerId,
       pickedUp,
     };
-    info.el.setPointerCapture(e.pointerId);
+    try {
+      info.el.setPointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
     info.el.addEventListener('pointermove', this.onDragMove);
     info.el.addEventListener('pointerup', this.onDragEnd);
     info.el.addEventListener('pointercancel', this.onDragEnd);
