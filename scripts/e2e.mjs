@@ -114,17 +114,17 @@ try {
     });
     check('probe analyser switches to the selected port', !probe.isMaster, JSON.stringify(probe));
 
-    // change a connection during playback: pull the VCA → Delay cable, sound should drop
+    // change a connection during playback: pull the cable into Output, sound should stop
     const cut = await page.evaluate(async () => {
       const { store } = window.__patchbay;
-      const c = store.patch.cables.find((c) => c.from.module === 'vca1');
+      const c = store.patch.cables.find((c) => c.to.module === 'out');
       store.removeCable(c.id);
       return c;
     });
     const silent = await level(page, 700);
     await page.evaluate((c) => window.__patchbay.store.connect(c.from, c.to), cut);
     const back = await level(page, 900);
-    check('cables really route audio (unplug → silence, replug → sound)', silent.rms < 0.004 && back.rms > 0.01, `unplugged rms ${silent.rms.toFixed(4)}, replugged ${back.rms.toFixed(4)}`);
+    check('cables really route audio (unplug → silence, replug → sound)', silent.rms < 0.001 && back.rms > 0.01, `unplugged rms ${silent.rms.toFixed(4)}, replugged ${back.rms.toFixed(4)}`);
 
     // unsupported connection is refused gracefully
     const bad = await page.evaluate(() => window.__patchbay.store.connect({ module: 'seq1', port: 'gate' }, { module: 'flt1', port: 'in' }));
@@ -204,6 +204,55 @@ try {
     const restored = await page.evaluate(() => ({ name: window.__patchbay.store.patch.name, mix: window.__patchbay.store.getModule('rev1')?.params.mix }));
     check('modified patch survives a reload (autosave)', restored.name === 'My Test Patch' && restored.mix === 0.91, JSON.stringify(restored));
     check('no page errors in desktop flow', errors.length === 0, errors.slice(0, 5).join(' | '));
+    await ctx.close();
+  }
+
+  // ---------------------------------------------------------------- numeric DSP checks
+  {
+    const { ctx, page, errors } = await freshPage({ viewport: { width: 1280, height: 800 } });
+    await page.goto(ROOT);
+    await page.waitForSelector('.ov-go');
+    await page.click('.ov-go');
+    await page.waitForTimeout(500);
+    const dsp = await page.evaluate(async () => {
+      const { store, engine, loadPatch } = window.__patchbay;
+      const mk = (mods, cables) => ({ format: 'patchbay', version: 1, name: 'Test', tempo: 120, macros: [], modules: mods, cables });
+      const P = (type, id, params = {}) => ({ id, type, x: 0, y: 0, params });
+      const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+      const peakHz = () => {
+        const an = engine.getMasterAnalyser();
+        const f = new Float32Array(an.frequencyBinCount);
+        an.getFloatFrequencyData(f);
+        let bi = 0; for (let i = 1; i < f.length; i++) if (f[i] > f[bi]) bi = i;
+        return (bi * engine.ctx.sampleRate) / an.fftSize;
+      };
+      const band = (lo, hi) => {
+        const an = engine.getMasterAnalyser();
+        const f = new Float32Array(an.frequencyBinCount);
+        an.getFloatFrequencyData(f);
+        const hz = engine.ctx.sampleRate / an.fftSize;
+        let s = 0, n = 0;
+        for (let i = Math.floor(lo / hz); i < Math.min(f.length, hi / hz); i++) { s += Math.pow(10, f[i] / 10); n++; }
+        return 10 * Math.log10(s / Math.max(1, n));
+      };
+      const { parsePatch } = window.__patchbay;
+      // Sine through a VCA held open: pitch CV must give A4 = 440 Hz, A3 = 220 Hz.
+      loadPatch(mk([P('keys', 'k', { voices: 1 }), P('osc', 'o', { wave: 'sine' }), P('vca', 'v', { gain: 1 }), P('output', 'out', { level: 0.5 })],
+        [{ id: 'a', from: { module: 'k', port: 'pitch' }, to: { module: 'o', port: 'pitch' } }, { id: 'b', from: { module: 'o', port: 'out' }, to: { module: 'v', port: 'in' } }, { id: 'c', from: { module: 'v', port: 'out' }, to: { module: 'out', port: 'in' } }]));
+      await wait(400);
+      engine.noteOn(69, 1); await wait(500); const a4 = peakHz(); engine.noteOff(69);
+      engine.noteOn(57, 1); await wait(500); const a3 = peakHz(); engine.noteOff(57);
+      // White noise through a 500 Hz lowpass: energy well above cutoff must be far lower.
+      loadPatch(mk([P('noise', 'n', { color: 'white' }), P('filter', 'f', { mode: 'lowpass', cutoff: 500, res: 0.7 }), P('output', 'out', { level: 0.5 })],
+        [{ id: 'a', from: { module: 'n', port: 'out' }, to: { module: 'f', port: 'in' } }, { id: 'b', from: { module: 'f', port: 'out' }, to: { module: 'out', port: 'in' } }]));
+      await wait(700);
+      const low = band(100, 400), high = band(6000, 12000);
+      return { a4, a3, low, high, sr: engine.ctx.sampleRate };
+    });
+    const bin = dsp.sr / 2048;
+    check('numeric: pitch CV tracks 1V/oct (A4≈440 Hz, A3≈220 Hz)', Math.abs(dsp.a4 - 440) <= bin * 1.5 && Math.abs(dsp.a3 - 220) <= bin * 1.5, `A4 ${dsp.a4.toFixed(1)} Hz, A3 ${dsp.a3.toFixed(1)} Hz (bin ${bin.toFixed(1)} Hz)`);
+    check('numeric: lowpass filter attenuates highs', dsp.low - dsp.high > 30, `100–400 Hz ${dsp.low.toFixed(1)} dB vs 6–12 kHz ${dsp.high.toFixed(1)} dB`);
+    check('no page errors in DSP checks', errors.length === 0, errors.slice(0, 3).join(' | '));
     await ctx.close();
   }
 

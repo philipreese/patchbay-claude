@@ -5,6 +5,7 @@ import { createEngine } from './audio/engine';
 import { PRESETS } from './presets';
 import { buildShareUrl, decodePatchFromHash } from './core/share';
 import { loadSession, saveSession } from './core/library';
+import { parsePatch } from './core/serialize';
 import { mountTopbar } from './ui/topbar';
 import { mountOverlay } from './ui/overlay';
 import { toast } from './ui/toast';
@@ -39,7 +40,14 @@ async function ensureStarted() {
   if (!engine.started || engine.ctx?.state !== 'running') await engine.start();
 }
 
-function loadPatch(p: Patch, opts: { autoplay?: boolean } = {}) {
+function loadPatch(input: Patch, opts: { autoplay?: boolean } = {}) {
+  // Always re-validate: fills missing params, drops anything unsupported.
+  const parsed = parsePatch(input);
+  if (!parsed.patch) {
+    toast(parsed.error || 'That patch could not be loaded.', 'warn');
+    return;
+  }
+  const p = parsed.patch;
   const wasPlaying = engine.playing;
   engine.stop();
   engine.allNotesOff();
