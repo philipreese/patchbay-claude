@@ -82,6 +82,7 @@ export class Engine implements EngineView {
   // ------------------------------------------------------------------ lifecycle
 
   async start() {
+    this.unlockMediaPlayback();
     if (!this.ctx) {
       const AC: typeof AudioContext = (window as any).AudioContext || (window as any).webkitAudioContext;
       if (!AC) {
@@ -132,6 +133,41 @@ export class Engine implements EngineView {
     }
     this.started = true;
     this.emit({ type: 'started' });
+  }
+
+  private mediaUnlocked = false;
+  /**
+   * iPhones mute Web Audio when the ringer switch is on silent unless the page is
+   * treated as media playback. Ask for that explicitly (Safari 17+) and, for older
+   * versions, play a silent looping <audio> element from within the user gesture.
+   */
+  private unlockMediaPlayback() {
+    if (this.mediaUnlocked) return;
+    this.mediaUnlocked = true;
+    try {
+      const nav = navigator as any;
+      if (nav.audioSession) nav.audioSession.type = 'playback';
+    } catch {
+      /* not supported */
+    }
+    try {
+      const rate = 8000;
+      const n = rate / 2;
+      const buf = new ArrayBuffer(44 + n * 2);
+      const dv = new DataView(buf);
+      const w = (o: number, s: string) => [...s].forEach((c, i) => dv.setUint8(o + i, c.charCodeAt(0)));
+      w(0, 'RIFF'); dv.setUint32(4, 36 + n * 2, true); w(8, 'WAVE'); w(12, 'fmt ');
+      dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 1, true);
+      dv.setUint32(24, rate, true); dv.setUint32(28, rate * 2, true); dv.setUint16(32, 2, true); dv.setUint16(34, 16, true);
+      w(36, 'data'); dv.setUint32(40, n * 2, true);
+      const el = new Audio(URL.createObjectURL(new Blob([buf], { type: 'audio/wav' })));
+      el.loop = true;
+      el.setAttribute('playsinline', '');
+      el.volume = 0.01;
+      void el.play().catch(() => {});
+    } catch {
+      /* best effort */
+    }
   }
 
   private startClock() {
