@@ -174,13 +174,12 @@ export function mountDock(dock: HTMLElement, playbar: HTMLElement, store: PatchS
     dock.innerHTML = '';
     dock.appendChild(tabShell);
     playPanel.innerHTML = '';
-    playPanel.appendChild(headerSection);
-    playPanel.appendChild(pb.chordsEl);
-    const expWrap = document.createElement('div');
-    expWrap.className = 'playbar-row mobile-exp-row';
-    expWrap.appendChild(pb.expressionEl);
-    playPanel.appendChild(expWrap);
+    playPanel.classList.add('play-tab-panel');
+    // The keyboard is the star on phone: it goes first and gets most of the
+    // height; the patch name/about is skipped here (the topbar shows it).
     playPanel.appendChild(pb.keyboardEl);
+    playPanel.appendChild(pb.chordsEl);
+    playPanel.appendChild(pb.expressionEl);
 
     // Sound / Rhythm / Scope become tab panels appended after Play, shown/hidden via CSS.
     tabShell.appendChild(soundSection);

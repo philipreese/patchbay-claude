@@ -330,9 +330,11 @@ export function mountRhythm(container: HTMLElement, store: PatchStore, engine: E
           const s = clone.steps[i];
           if (isTap) {
             s.on = !s.on;
-          } else if (Math.abs(dy) >= 6 && s.on) {
+          } else if (Math.abs(dy) >= 6) {
+            // Dragging an off step also turns it on — more discoverable than requiring a tap first.
             const raw = Math.max(-24, Math.min(24, s.note + Math.round(dy / 8)));
             s.note = snapToScale(raw, (m.params.scale as string) ?? 'minor');
+            s.on = true;
           }
         });
       });

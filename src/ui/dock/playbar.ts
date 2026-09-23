@@ -76,16 +76,39 @@ export function buildPlaybar(engine: EngineView, patch: Patch): PlaybarWidgets {
     return window.matchMedia('(min-width: 821px)').matches;
   }
 
+  // On phone the keyboard is the star: keys get a fixed, generous minimum
+  // size and the strip scrolls horizontally instead of squeezing everything
+  // into view (which is what the percentage-width desktop layout does).
+  const COMPACT_WHITE_PX = 40;
+
   function renderKeys() {
     keysWrap.innerHTML = '';
     keyEls.clear();
-    const totalSemis = octaves * 12;
+    const compact = !isDesktop();
     const whiteCount = octaves * 7 + 1;
-    const whiteW = 100 / whiteCount;
-    const showHints = isDesktop();
+    const whiteW = 100 / whiteCount; // desktop: percentage of the full-width strip
+    const showHints = !compact;
     const keyMapByOffset = new Map(KEY_MAP.map(([k, off]) => [off, k]));
 
-    void totalSemis;
+    if (compact) {
+      keysWrap.style.width = whiteCount * COMPACT_WHITE_PX + 'px';
+    } else {
+      keysWrap.style.width = '100%';
+    }
+
+    function whiteLeft(i: number) {
+      return compact ? i * COMPACT_WHITE_PX + 'px' : i * whiteW + '%';
+    }
+    function whiteSize() {
+      return compact ? COMPACT_WHITE_PX + 'px' : whiteW + '%';
+    }
+    function blackLeft(whiteBefore: number) {
+      return compact ? (whiteBefore + 1) * COMPACT_WHITE_PX - COMPACT_WHITE_PX * 0.32 + 'px' : (whiteBefore + 1) * whiteW - whiteW * 0.32 + '%';
+    }
+    function blackSize() {
+      return compact ? COMPACT_WHITE_PX * 0.64 + 'px' : whiteW * 0.64 + '%';
+    }
+
     // Build whites first (left to right), then blacks positioned on top.
     const whiteMidis: number[] = [];
     for (let o = 0; o <= octaves; o++) {
@@ -99,8 +122,8 @@ export function buildPlaybar(engine: EngineView, patch: Patch): PlaybarWidgets {
       const el = document.createElement('div');
       el.className = 'pb-key pb-key-white';
       el.dataset.midi = String(midi);
-      el.style.left = i * whiteW + '%';
-      el.style.width = whiteW + '%';
+      el.style.left = whiteLeft(i);
+      el.style.width = whiteSize();
       const label = document.createElement('div');
       label.className = 'pb-key-hint';
       const offset = midi - baseMidi;
@@ -118,8 +141,8 @@ export function buildPlaybar(engine: EngineView, patch: Patch): PlaybarWidgets {
         const el = document.createElement('div');
         el.className = 'pb-key pb-key-black';
         el.dataset.midi = String(midi);
-        el.style.left = (whiteBefore + 1) * whiteW - whiteW * 0.32 + '%';
-        el.style.width = whiteW * 0.64 + '%';
+        el.style.left = blackLeft(whiteBefore);
+        el.style.width = blackSize();
         const label = document.createElement('div');
         label.className = 'pb-key-hint';
         const offset = midi - baseMidi;
@@ -140,11 +163,14 @@ export function buildPlaybar(engine: EngineView, patch: Patch): PlaybarWidgets {
     });
   }
 
+  let lastCompact = !isDesktop();
   function fitOctaves() {
     const w = keysScroll.clientWidth || 360;
     const n = w > 1500 ? 3 : w > 1000 ? 2 : 2;
-    if (n !== octaves) {
+    const compact = !isDesktop();
+    if (n !== octaves || compact !== lastCompact) {
       octaves = n;
+      lastCompact = compact;
       renderKeys();
     }
   }
@@ -248,22 +274,25 @@ export function buildPlaybar(engine: EngineView, patch: Patch): PlaybarWidgets {
 
   function setExpression(v: number) {
     v = Math.min(1, Math.max(0, v));
-    expFill.style.height = v * 100 + '%';
+    expFill.style.setProperty('--fill', v * 100 + '%');
     expVal.textContent = Math.round(v * 100) + '%';
     engine.setMod(v);
+  }
+  function valueFromEvent(e: PointerEvent): number {
+    const rect = expTrack.getBoundingClientRect();
+    // Phone: compact horizontal strip (left = 0, right = max). Desktop/tablet: vertical (bottom = 0).
+    return isDesktop() ? 1 - (e.clientY - rect.top) / rect.height : (e.clientX - rect.left) / rect.width;
   }
   let expDragging = false;
   expTrack.addEventListener('pointerdown', (e) => {
     expDragging = true;
     expTrack.setPointerCapture(e.pointerId);
     expTrack.classList.add('is-dragging');
-    const rect = expTrack.getBoundingClientRect();
-    setExpression(1 - (e.clientY - rect.top) / rect.height);
+    setExpression(valueFromEvent(e));
   });
   expTrack.addEventListener('pointermove', (e) => {
     if (!expDragging) return;
-    const rect = expTrack.getBoundingClientRect();
-    setExpression(1 - (e.clientY - rect.top) / rect.height);
+    setExpression(valueFromEvent(e));
   });
   function releaseExpression(e: PointerEvent) {
     if (!expDragging) return;
