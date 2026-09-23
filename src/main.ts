@@ -15,7 +15,7 @@ async function boot() {
   } catch (e) { console.warn('canvas not ready', e); }
   try {
     const { mountDock } = await import('./ui/dock');
-    mountDock(document.getElementById('dock')!, store, engine);
+    mountDock(document.getElementById('dock')!, document.getElementById('playbar')!, store, engine);
   } catch (e) { console.warn('dock not ready', e); }
 }
 boot();
