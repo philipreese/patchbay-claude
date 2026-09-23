@@ -3,7 +3,7 @@ import './styles/base.css';
 import { PatchStore } from './core/store';
 import { createEngine } from './audio/engine';
 import { PRESETS } from './presets';
-import { decodePatchFromHash } from './core/share';
+import { buildShareUrl, decodePatchFromHash } from './core/share';
 import { loadSession, saveSession } from './core/library';
 import { mountTopbar } from './ui/topbar';
 import { mountOverlay } from './ui/overlay';
@@ -115,4 +115,5 @@ document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && engine.started && engine.ctx?.state !== 'running') void engine.ctx?.resume();
 });
 
-(window as any).__patchbay = { store, engine, presets: PRESETS, loadPatch };
+// Test/debug handle (read-only use by the e2e suite).
+(window as any).__patchbay = { store, engine, presets: PRESETS, loadPatch, shareUrl: () => buildShareUrl(store.patch) };
