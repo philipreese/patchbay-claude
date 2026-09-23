@@ -1,0 +1,54 @@
+/* Patchbay visual identity — "enamel & cloth".
+   Cream enamel instrument panels on a deep ink canvas, joined by saturated
+   cloth-sheathed cables with brass jacks. Display type is Bricolage Grotesque;
+   values, labels and readouts are IBM Plex Mono. */
+@import '@fontsource-variable/bricolage-grotesque';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
+@import '@fontsource/ibm-plex-mono/600.css';
+
+:root {
+  --ink: #0e1014;          /* canvas background */
+  --ink-2: #161920;        /* raised dark surfaces (bars, dock) */
+  --ink-3: #1f232c;        /* hover / inputs on dark */
+  --line: rgba(243, 238, 227, 0.09);
+  --grid-dot: rgba(243, 238, 227, 0.07);
+  --paper: #f3eee3;        /* text on dark */
+  --paper-dim: #9b978d;
+  --enamel: #ece4d2;       /* module face */
+  --enamel-2: #e2d9c4;     /* module inset / control wells */
+  --enamel-edge: #bfb293;
+  --print: #1c1b19;        /* text on enamel */
+  --print-dim: #6e6758;
+  --bakelite: #1b1a18;     /* knob body */
+  --brass: #c9a65c;        /* jacks */
+  --brass-dark: #7d6431;
+  --hot: #ff5b36;          /* primary action / record / alerts */
+  --hot-2: #ff8a5c;
+  --ok: #2fb58a;
+
+  /* module category colours */
+  --cat-play: #ff5b36;
+  --cat-source: #f2b134;
+  --cat-shape: #3d7cf0;
+  --cat-modulate: #2fb58a;
+  --cat-effect: #a66cf0;
+  --cat-out: #f3eee3;
+
+  /* cable palette, index = Cable.color */
+  --cable-0: #ff5b36;
+  --cable-1: #f2b134;
+  --cable-2: #3d7cf0;
+  --cable-3: #2fb58a;
+  --cable-4: #e2508f;
+  --cable-5: #39c0e0;
+
+  --font-display: 'Bricolage Grotesque Variable', 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow-module: 0 1px 0 rgba(255, 255, 255, 0.6) inset, 0 -2px 0 rgba(0, 0, 0, 0.08) inset, 0 10px 30px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.35);
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --topbar-h: 56px;
+}
